@@ -1,4 +1,5 @@
 <?php
+//Session
 session_start();
 
 require_once ('./common/HTMLView.php');
