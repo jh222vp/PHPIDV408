@@ -7,30 +7,30 @@ class LoginModel{
 	 * @return success:bool
 	 */
 	public function loginUser($user, $pass, $clientId){
+		
 				
 		$success = false;
 		
-		$lines = @file("LoginModel.txt");
-
-		foreach($lines as $existingUser){
-			
-			$line = explode("-", $existingUser);
-			
-			$lineUser = $line[0];
-			$linePass = $line[1];
-			
-			if($lineUser === $user){ // if input is same as excisting user
-				if($linePass === $pass){ //...and password is correct
+		//Specificerar uppgifter för anslutning mot önskad datorbas samt SQL-Query
+		$myConnection = new mysqli("127.0.0.1", "root", "", "labb4");
+		$sqlCommand = "SELECT * FROM members WHERE username='$user' AND password='$pass'";
+	
+		//Sparar undan resultatet i variabler
+		$result = mysqli_query($myConnection, $sqlCommand);
+		$row_count = mysqli_num_rows($result);
+		
+		//Kontroll för om lösenord och användarnamn var korrekt
+				if($row_count > 0){
+		
 					$success = true; // success
 					
 					// save session
 					$_SESSION["logged"] = $clientId;
 					$_SESSION["loggedUser"] = $user;
 					
-					return $success;
-				} 
+					return $success;	
 			} 
-		}
+		
 		return $success;
 	}
 	
