@@ -1,16 +1,23 @@
 <?php
 
+require_once ('./common/HTMLView.php');
 require_once("./LoginView.php");
 require_once("./LoginModel.php");
+require_once("./View/RegisterUserView.php");
 
 class LoginController{
 	private $model;
 	private $view;
 	private $messageStorage = "cookieMessage";
+	private $registeruserView;
+	private $htmlView;
 	
 	public function __construct(){
+	
+		$this->htmlView = new HTMLView();
 		$this->model = new LoginModel();
 		$this->view = new LoginView($this->model);
+		$this->registerUserView = new RegisterUserView();
 	}
 	
 	public function authenticate(){
@@ -32,7 +39,7 @@ class LoginController{
 				
 			// ...does not have stored credentials
 			} else {
-			
+				
 				/* Use Case 1 Authenticate user */
 				return $this->authUser();
 			}
@@ -41,12 +48,63 @@ class LoginController{
 
 	/* Use Case 1 Authenticate user */
 	public function authUser(){
+			
+		$didUserClickRegister = $this->registerUserView->registerNewUser();
 		
-		if($this->view->userTryLogin()){
+		if($didUserClickRegister)
+		{
+			if($this->registerUserView->submitNewUser())
+			{
+				//Samlar in användarnamn och lösenord som skrivs in av användaren..
+				$registerUsername = $this->registerUserView->getInputName();
+				$registerPassword = $this->registerUserView->getInputPassword();
+				$repeatpassword = $this->registerUserView->getRepeatPass();
+				
+				$validAddUser = false;
+				
+				$returner = $this->registerUserView->ViewLogin();
+				$ValidateLength = $this->model->validateUserRegistration($registerUsername, $registerPassword, $repeatpassword);
+				$addUser = true;
+				
+				//Validerar så att lösenorden är korrekt
+
+				var_dump($ValidateLength);
+				switch($ValidateLength){
+					
+					case 1: {$this->registerUserView->usernameAndPasswordToShortMessage(); $this->registerUserView->ViewLogin();}
+					case 2: {$this->registerUserView->usernameToShort();$this->registerUserView->ViewLogin();}
+					case 3: {$this->registerUserView->passwordIsToShort();$this->registerUserView->ViewLogin();}
+					case 4: {$this->registerUserView->passwordsDontMatchEachOther(); $this->registerUserView->ViewLogin();}
+				}
+				
+					if($this->model->usernameIsAlreadyTaken($registerUsername))
+					{
+						
+						$this->registerUserView->usernameIsOccupied();
+					}
+					if($ValidateLength)
+					{
+						$this->registerUserView->ViewLogin();
+					}
+					else
+					{
+						$this->model->registerUser($registerUsername, $registerPassword);
+						echo "registrering lyckades $registerUsername";
+					}
+				
+			}
+
+			return $this->registerUserView->ViewLogin();
+		}
+	
+		$hej = $this->view->userTryLogin();
+		
+		if($hej){
 			
 		 	// UC 1 3: user provides username and password
 			$inpName = $this->view->getInputName(false);
 			$inpPass = $this->view->getInputPassword(false);
+			
 			
 			// UC 1 3a: user wants system to keep user credentials for easier login
 			$keepCreds = $this->view->keepCredentials();
@@ -63,7 +121,9 @@ class LoginController{
 				$this->view->storeUserInput($inpName);
 				
 				// redirects to self
+				
 				$this->view->storeMessage("Felaktigt användarnamn och/eller lösenord");
+				
 				
 			} else {
 				

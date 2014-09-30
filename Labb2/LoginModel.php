@@ -1,13 +1,20 @@
 <?php
 
+
+require_once("./View/RegisterUserView.php");
+
 class LoginModel{
 
-	/*
-	 * Check if LoginModel.txt has the kombination of username and password
-	 * @return success:bool
-	 */
+	
+	
+	
+	private $registerUserView;
+	
+	public function __construct(){
+		$this->registerUserView = new RegisterUserView();
+	}
+	
 	public function loginUser($user, $pass, $clientId){
-		
 				
 		$success = false;
 		
@@ -19,20 +26,66 @@ class LoginModel{
 		$result = mysqli_query($myConnection, $sqlCommand);
 		$row_count = mysqli_num_rows($result);
 		
-		//Kontroll för om lösenord och användarnamn var korrekt
-				if($row_count > 0){
-		
+			
+			if($row_count > 0){ // if input is same as excisting user
 					$success = true; // success
 					
 					// save session
 					$_SESSION["logged"] = $clientId;
 					$_SESSION["loggedUser"] = $user;
 					
-					return $success;	
+					return $success;
 			} 
 		
 		return $success;
 	}
+	
+	public function registerUser($newUsername, $newPassword){
+	
+				
+		$connection = new mysqli("127.0.0.1", "root", "", "labb4");
+		$query = "INSERT INTO members (username, password) VALUES ('$newUsername', '$newPassword')";
+		
+		$result = mysqli_query($connection, $query);	
+	}
+	public function usernameIsAlreadyTaken($username)
+	{
+		$myConnection = new mysqli("127.0.0.1", "root", "", "labb4");
+		$sqlCommand = "SELECT * FROM members WHERE username='$username'";
+	
+		//Sparar undan resultatet i variabler
+		$result = mysqli_query($myConnection, $sqlCommand);
+		$row_count = mysqli_num_rows($result);
+		
+			
+			if($row_count > 0)
+			{
+				return true;
+			}else{return false;}
+	}
+	
+	public function validateUserRegistration($username, $password1, $password2){
+		if(mb_strlen($username) < 3 && mb_strlen($password1) < 6 && mb_strlen($password2) < 6)
+		{
+			return 1;
+		}
+		else if(mb_strlen($username) < 3)
+		{
+			return 2;
+		}
+		else if(mb_strlen($password1) < 6 || mb_strlen($password2) < 6)
+		{
+			return 3;
+		}
+		else if($password1 != $password2)
+		{
+			return 4;
+		}
+		else
+		{
+			return false;
+		}
+		}
 	
 	public function loginCredentialsUser($user, $pass, $clientId){
 		
@@ -85,4 +138,5 @@ class LoginModel{
 		unset($_SESSION["loggedUser"]);
 		return true;
 	}
+	
 }

@@ -23,6 +23,8 @@ class LoginView{
 		return $_SERVER["HTTP_USER_AGENT"];
 	}
 	
+	
+	
 	// did user press "log in"
 	public function userTryLogin(){	
 		if(isset($_GET["login"])){
@@ -45,11 +47,13 @@ class LoginView{
 	public function getInputName($stored){
 		if($stored){
 			return $_COOKIE['loginUser'];
-		} else {	
+		} else {
+		
 			if(isset($_POST["LoginView::usrNameId"]) and strlen(trim($_POST["LoginView::usrNameId"])) !== 0){
 				$name = $_POST["LoginView::usrNameId"];
 				return $name;
 			} else {
+			
 				$this->storeMessage("Användarnamn saknas");
 				die();
 			}
@@ -64,8 +68,9 @@ class LoginView{
 		} else {
 			
 			if(isset($_POST["LoginView::passwordId"]) and strlen(trim($_POST["LoginView::passwordId"])) !== 0){	
-		
-				$pass = md5($_POST["LoginView::passwordId"]);
+				
+				
+				$pass = ($_POST["LoginView::passwordId"]);
 				return $pass;
 			} else {
 				$this->storeMessage("Lösenord saknas");
@@ -152,6 +157,7 @@ class LoginView{
 		
 			$ret .= '<h1>Ej inloggad</h1>
 			<form action="?login" method="post">
+			<a href="?Register">Registrera ny användare</a>
 				<fieldset>
 					<legend>Login - Input username and password</legend>
 					<p>' . $msg . '</p>
