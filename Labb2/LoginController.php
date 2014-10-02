@@ -11,6 +11,8 @@ class LoginController{
 	private $messageStorage = "cookieMessage";
 	private $registeruserView;
 	private $htmlView;
+	private $con;
+	private $password;
 	
 	public function __construct(){
 	
@@ -18,11 +20,12 @@ class LoginController{
 		$this->model = new LoginModel();
 		$this->view = new LoginView($this->model);
 		$this->registerUserView = new RegisterUserView();
+		$this->con = new mysqli("127.0.0.1", "root", "", "labb4");
 	}
 	
 	public function authenticate(){
 		
-		// if user is  logged
+		// if user is logged
 		if($this->model->isUserLogged($this->view->getClientIdentifier())){
 			
 			/* Use Case 2 Logging out an authenticated user */
@@ -45,6 +48,14 @@ class LoginController{
 			}
 		}
 	}
+	
+	public function sendCookie(){
+	
+		$collectpass = $this->view->getInputPassword(false);
+
+		$this->model->setCryptedCookiePass($collectpass);
+		$this->view->setCookiePass($this->model->getCryptetCookiePass());
+		}
 
 	/* Use Case 1 Authenticate user */
 	public function authUser(){
@@ -60,21 +71,32 @@ class LoginController{
 				$registerPassword = $this->registerUserView->getInputPassword();
 				$repeatpassword = $this->registerUserView->getRepeatPass();
 				
+				//Tvättar strängarna
+				$safeCollectedUsername = mysqli_real_escape_string($this->con ,$registerUsername);
+				$safeCollectedPassword = mysqli_real_escape_string($this->con ,$registerPassword);
+				$safeCollectedPassword2 = mysqli_real_escape_string($this->con ,$repeatpassword);
+				
+				
+			
 				$validAddUser = false;
 				
+
+				
 				$returner = $this->registerUserView->ViewLogin();
-				$ValidateLength = $this->model->validateUserRegistration($registerUsername, $registerPassword, $repeatpassword);
+				$ValidateLength = $this->model->validateUserRegistration($safeCollectedUsername, $safeCollectedPassword, $safeCollectedPassword2);
+
 				$addUser = true;
 				
 				//Validerar så att lösenorden är korrekt
 
-				var_dump($ValidateLength);
 				switch($ValidateLength){
 					
-					case 1: {$this->registerUserView->usernameAndPasswordToShortMessage(); $this->registerUserView->ViewLogin();}
-					case 2: {$this->registerUserView->usernameToShort();$this->registerUserView->ViewLogin();}
-					case 3: {$this->registerUserView->passwordIsToShort();$this->registerUserView->ViewLogin();}
-					case 4: {$this->registerUserView->passwordsDontMatchEachOther(); $this->registerUserView->ViewLogin();}
+					case 1: {$this->registerUserView->usernameAndPasswordToShortMessage(); $this->registerUserView->ViewLogin();break;}
+					case 2: {$this->registerUserView->usernameToShort();$this->registerUserView->ViewLogin(); break;}
+					case 3: {$this->registerUserView->passwordIsToShort();$this->registerUserView->ViewLogin();break;}
+					case 4: {$this->registerUserView->passwordsDontMatchEachOther(); $this->registerUserView->ViewLogin();break;}
+					case 5: {$this->registerUserView->notAllowedsymbolsMessage(); $this->registerUserView->viewLogin();break;}
+					
 				}
 				
 					if($this->model->usernameIsAlreadyTaken($registerUsername))
@@ -106,8 +128,16 @@ class LoginController{
 			$inpPass = $this->view->getInputPassword(false);
 			
 			
+			
+			
 			// UC 1 3a: user wants system to keep user credentials for easier login
-			$keepCreds = $this->view->keepCredentials();
+			
+			
+			
+			
+			
+			
+			
 			
 			// UC 1 4: authenticate user...
 			$answer = $this->model->loginUser($inpName, $inpPass, $this->view->getClientIdentifier());
@@ -122,13 +152,16 @@ class LoginController{
 				
 				// redirects to self
 				
-				$this->view->storeMessage("Felaktigt användarnamn och/eller lösenord");
+				//$this->view->storeMessage("Felaktigt användarnamn och/eller lösenord");
 				
 				
 			} else {
 				
+				$keepCreds = $this->view->keepCredentials();
+
 				if($keepCreds){
 					
+					$this->sendCookie();
 					// UC 1 3a-1: ...system presents that...the user credentials were saved
 					$expTime = $this->view->storeCredentials($inpName, $inpPass);
 					$this->model->storeCookieDate($inpName, $expTime);
