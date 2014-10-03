@@ -8,7 +8,7 @@ class LoginView{
 	private $cookieUser = "cookieUser";
 	private $message;
 	private $model;
-	private $cookiePass;
+	//private $cookiePass;
 	private $svDay = array("Mon"=>"Måndag", "Tue"=>"Tisdag", "Wed"=>"Onsdag", "Thu"=>"Torsdag", "Fri"=>"Fredag", "Sat"=>"Lördag", "Sun"=>"Söndag");
 	private $svMonth = array("01"=>"Januari", "02"=>"Februari", "03"=>"Mars", "04"=>"April", "05"=>"Maj", "06"=>"Juni", "07"=>"Juli", "08"=>"Augusti", "09"=>"September", "10"=>"Oktober", "11"=>"November", "12"=>"December");
 	
@@ -100,19 +100,11 @@ class LoginView{
 			return false;
 		}
 	}
-	public function getCookiePass(){
 	
-	return $this->cookiePass;
-	}
-	
-	public function setCookiePass($cookiepassword){
-		$this->cookiePass = $cookiepassword;
-	}
-	// store credentials
 	public function storeCredentials($name, $pass){
 
 		setcookie("loginUser", $name, time()+3600);
-		setcookie("loginPassword", $this->getCookiePass(), time()+3600);
+		setcookie("loginPassword", $pass, time()+3600);
 		return 3600;
 	}
 	

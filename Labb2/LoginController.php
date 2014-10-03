@@ -49,13 +49,7 @@ class LoginController{
 		}
 	}
 	
-	public function sendCookie(){
-	
-		$collectpass = $this->view->getInputPassword(false);
 
-		$this->model->setCryptedCookiePass($collectpass);
-		$this->view->setCookiePass($this->model->getCryptetCookiePass());
-		}
 
 	/* Use Case 1 Authenticate user */
 	public function authUser(){
@@ -161,7 +155,7 @@ class LoginController{
 
 				if($keepCreds){
 					
-					$this->sendCookie();
+					//$this->sendCookie();
 					// UC 1 3a-1: ...system presents that...the user credentials were saved
 					$expTime = $this->view->storeCredentials($inpName, $inpPass);
 					$this->model->storeCookieDate($inpName, $expTime);
