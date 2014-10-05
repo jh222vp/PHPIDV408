@@ -49,8 +49,6 @@ class LoginController{
 		}
 	}
 	
-
-
 	/* Use Case 1 Authenticate user */
 	public function authUser(){
 			
@@ -65,24 +63,19 @@ class LoginController{
 				$registerPassword = $this->registerUserView->getInputPassword();
 				$repeatpassword = $this->registerUserView->getRepeatPass();
 				
-				//Tvättar strängarna
+				//Tvättar strängarna från farliga SQL-Injections
 				$safeCollectedUsername = mysqli_real_escape_string($this->con ,$registerUsername);
 				$safeCollectedPassword = mysqli_real_escape_string($this->con ,$registerPassword);
 				$safeCollectedPassword2 = mysqli_real_escape_string($this->con ,$repeatpassword);
 				
-				
-			
 				$validAddUser = false;
-				
-
 				
 				$returner = $this->registerUserView->ViewLogin();
 				$ValidateLength = $this->model->validateUserRegistration($safeCollectedUsername, $safeCollectedPassword, $safeCollectedPassword2);
 
 				$addUser = true;
 				
-				//Validerar så att lösenorden är korrekt
-
+				//Skickar in de tvättade variablerna till modellen där de kontrolleras 
 				switch($ValidateLength){
 					
 					case 1: {$this->registerUserView->usernameAndPasswordToShortMessage(); $this->registerUserView->ViewLogin();break;}
@@ -90,12 +83,9 @@ class LoginController{
 					case 3: {$this->registerUserView->passwordIsToShort();$this->registerUserView->ViewLogin();break;}
 					case 4: {$this->registerUserView->passwordsDontMatchEachOther(); $this->registerUserView->ViewLogin();break;}
 					case 5: {$this->registerUserView->notAllowedsymbolsMessage(); $this->registerUserView->viewLogin();break;}
-					
 				}
-				
 					if($this->model->usernameIsAlreadyTaken($registerUsername))
-					{
-						
+					{				
 						$this->registerUserView->usernameIsOccupied();
 					}
 					if($ValidateLength)
@@ -105,33 +95,19 @@ class LoginController{
 					else
 					{
 						$this->model->registerUser($registerUsername, $registerPassword);
-						echo "registrering lyckades $registerUsername";
+						$this->registerUserView->userIsRegisterComplete($registerUsername);
 					}
-				
 			}
-
 			return $this->registerUserView->ViewLogin();
 		}
 	
-		$hej = $this->view->userTryLogin();
+		$useTryLogin = $this->view->userTryLogin();
 		
-		if($hej){
+		if($useTryLogin){
 			
 		 	// UC 1 3: user provides username and password
 			$inpName = $this->view->getInputName(false);
 			$inpPass = $this->view->getInputPassword(false);
-			
-			
-			
-			
-			// UC 1 3a: user wants system to keep user credentials for easier login
-			
-			
-			
-			
-			
-			
-			
 			
 			// UC 1 4: authenticate user...
 			$answer = $this->model->loginUser($inpName, $inpPass, $this->view->getClientIdentifier());
@@ -150,7 +126,7 @@ class LoginController{
 				
 				
 			} else {
-				
+				// UC 1 3a: user wants system to keep user credentials for easier login
 				$keepCreds = $this->view->keepCredentials();
 
 				if($keepCreds){
