@@ -6,11 +6,12 @@
 	private $password;
 	private $message;
 	private $message2;
+	private $svDay = array("Mon"=>"Måndag", "Tue"=>"Tisdag", "Wed"=>"Onsdag", "Thu"=>"Torsdag", "Fri"=>"Fredag", "Sat"=>"Lördag", "Sun"=>"Söndag");
+	private $svMonth = array("01"=>"Januari", "02"=>"Februari", "03"=>"Mars", "04"=>"April", "05"=>"Maj", "06"=>"Juni", "07"=>"Juli", "08"=>"Augusti", "09"=>"September", "10"=>"Oktober", "11"=>"November", "12"=>"December");
+	
+	public function ViewLogin(){
 	
 
-		
-	public function ViewLogin(){
-	$date = "dagen datum är..";
 	$ret =  "<a href='?'>Tillbaka</a>
 					<h3>Ej inloggad, Registrerar användare</h3>
 						<form method='POST'>
@@ -27,10 +28,14 @@
 					</fieldset>
 					<input type='submit' value='Registrera' name='submit'>
 					</form>
-					<p>$date</p>
 					";
-							
-	return $ret;
+		$ret .= $this->showDate();
+		return $ret;	
+	}
+	
+	// show Date-message in swedish
+	public function showDate(){
+		return "<p>" . $this->svDay[date("D")] . ", den " . date("d") . " " . $this->svMonth[date("m")]  . " år " . date("Y") . ". Klockan är " . date("H:i:s") . ".</p>";
 	}
 	
 	public function getRegisterInformation(){
@@ -51,10 +56,6 @@
 			if(isset($_POST["repeatpass"]) and strlen(trim($_POST["repeatpass"])) !== 0){
 				$repeatPassword = $_POST["repeatpass"];
 				return $repeatPassword;
-			} else {
-				$this->message("Användarnamn saknas");
-				
-				die();
 			}
 	}
 	
@@ -63,51 +64,41 @@
 			if(isset($_POST["username"]) and strlen(trim($_POST["username"])) !== 0){
 				$name = $_POST["username"];
 				return $name;
-			} else {
-				//$this->message("Användarnamn saknas");
-				
-				die();
 			}
 	}
-	
-	
-	
 	
 	public function usernameIsOccupied(){
 		$this->message = ("Användarnamnet är upptaget..");
 	}
 	
+	public function userIsRegisterComplete($registeredUsername){
+		$this->message = ("Användaren $registeredUsername lades till..");
+	}
+	
 	public function usernameToShort(){
-		$this->message = ("Användarnamnet är för kort!!!!!!!!!!..");
+		$this->message = ("Användarnamnet är för kort! Minst 3 tecken");
 	}
 	
 	public function passwordIsToShort(){
-		$this->message = ("Lösenordet är för kort..");
+		$this->message = ("Lösenordet är för kort! Minst 6 tecken");
 	}
 	
 	public function passwordsDontMatchEachOther(){
-		$this->message = ("Lösenorden matchar inte varandraaaaaa..");
+		$this->message = ("Lösenorden matchar inte varandra!");
 	}
 	public function usernameAndPasswordToShortMessage(){
 		$this->message = "Användarnamnet har för få tecken. Minst 3 tecken";
 		$this->message2 = "Lösenorden har för få tecken. Minst 6 tecken";
 	}
-	
-	
-	
-	
-	
-	
+		public function notAllowedsymbolsMessage(){
+		$this->message = "Användarnamnet innehåller otillåtna tecken..";
+	}
 	
 	public function getInputPassword(){
 			
 			if(isset($_POST["password"]) and strlen(trim($_POST["password"])) !== 0){
 				$pass = $_POST["password"];
 				return $pass;
-			} else {
-			
-				//$this->storeMessage("password saknas");
-				die();
 			}
 	}
 	// did user press "Register new user"
@@ -121,7 +112,6 @@
 	// did user press "submit new user"
 	public function submitNewUser(){	
 		if(isset($_POST["submit"])){
-		
 			return true;
 		} else {
 			return false;

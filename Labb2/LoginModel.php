@@ -77,6 +77,10 @@ class LoginModel{
 		{
 			return 2;
 		}
+		else if($this->usernameIsAlreadyTaken($username))
+		{								
+			return 6;
+		}
 		else if(mb_strlen($password1) < 6 || mb_strlen($password2) < 6)
 		{
 			return 3;

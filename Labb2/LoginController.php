@@ -83,11 +83,9 @@ class LoginController{
 					case 3: {$this->registerUserView->passwordIsToShort();$this->registerUserView->ViewLogin();break;}
 					case 4: {$this->registerUserView->passwordsDontMatchEachOther(); $this->registerUserView->ViewLogin();break;}
 					case 5: {$this->registerUserView->notAllowedsymbolsMessage(); $this->registerUserView->viewLogin();break;}
+					case 6: {$this->registerUserView->usernameIsOccupied(); $this->registerUserView->viewLogin();break;}
 				}
-					if($this->model->usernameIsAlreadyTaken($registerUsername))
-					{				
-						$this->registerUserView->usernameIsOccupied();
-					}
+
 					if($ValidateLength)
 					{
 						$this->registerUserView->ViewLogin();

@@ -12,7 +12,7 @@ class HTMLView {
 				</head>
 				
 				<body>
-				<h2>Welcome to Juhani's World of Success! - ja222qm</h2>
+				<h2>Welcome to Juhani's World of Success! - ja222qm - Jh222vp Edit!!</h2>
 					$body
 				</body>
 				</html>";
